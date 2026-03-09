@@ -51,7 +51,9 @@ const userSchema = new mongoose.Schema(
         isDeleted: {
             type: Boolean,
             default: false
-        }
+        },
+        forgotpasswordToken: String,
+        forgotpasswordTokenExp: Date
     },
     {
         timestamps: true
@@ -63,10 +65,10 @@ userSchema.index({
     email: 1
 })
 
-userSchema.pre('save', function(next) {
+userSchema.pre('save', function (next) {
     let salt = bcrypt.genSaltSync(10);
     this.password = bcrypt.hashSync(
-        this.password,salt
+        this.password, salt
     )
 })
 
