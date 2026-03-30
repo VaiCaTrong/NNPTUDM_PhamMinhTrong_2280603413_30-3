@@ -11,15 +11,32 @@ let mailHandler = require('../utils/sendMailHandler')
 /* GET home page. */
 //localhost:3000
 router.post('/register', async function (req, res, next) {
-    let newUser = await userController.CreateAnUser(
-        req.body.username,
-        req.body.password,
-        req.body.email,
-        "69a5462f086d74c9e772b804"
-    )
-    res.send({
-        message: "dang ki thanh cong"
-    })
+    try {
+        // Tìm role USER
+        let roleModel = require('../schemas/roles');
+        let userRole = await roleModel.findOne({ name: "USER" });
+        
+        if (!userRole) {
+            return res.status(400).send({ message: "Role USER not found. Please create it first." });
+        }
+
+        let newUser = await userController.CreateAnUser(
+            req.body.username,
+            req.body.password,
+            req.body.email,
+            userRole._id
+        )
+        
+        res.send({
+            message: "Đăng ký thành công",
+            user: {
+                username: newUser.username,
+                email: newUser.email
+            }
+        })
+    } catch (err) {
+        res.status(400).send({ message: err.message });
+    }
 });
 router.post('/login', async function (req, res, next) {
     let result = await userController.QueryByUserNameAndPassword(
